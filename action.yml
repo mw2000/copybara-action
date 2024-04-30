@@ -19,6 +19,10 @@ inputs:
     description: "copy.bara.sky file path"
     required: false
     default: "."
+  workflow:
+    description: "copybara workflow to run"
+    required: false
+    default: ""
 
 runs:
   using: "composite"
@@ -37,7 +41,7 @@ runs:
     - run: docker pull sharelatex/copybara:latest
       shell: bash
 
-    - run: docker run -v ~/.ssh:/root/.ssh -v ~/.gitconfig:/root/.gitconfig -v "$(pwd)":/usr/src/app -e COPYBARA_CONFIG=${{ inputs.path }} -i sharelatex/copybara copybara || true
+    - run: docker run -v ~/.ssh:/root/.ssh -v ~/.gitconfig:/root/.gitconfig -v "$(pwd)":/usr/src/app -e COPYBARA_CONFIG=${{ inputs.path }} -i sharelatex/copybara copybara ${{ inputs.workflow }} || true
       shell: bash
 
 branding:
