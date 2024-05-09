@@ -15,12 +15,19 @@ inputs:
   ssh_known_hosts:
     description: "ssh known hosts file contents, for authenticating with Copybara"
     required: true
+  git_credentials:
+    description: "git credentials, for authenticating with Copybara"
+    required: true
   path:
     description: "copy.bara.sky file path"
     required: false
     default: "."
   workflows:
     description: "copybara workflows to run, comma-separated"
+    required: false
+    default: ""
+  pull_request:
+    description: "pull request number"
     required: false
     default: ""
 
@@ -31,6 +38,7 @@ runs:
         mkdir ~/.ssh
         echo $'${{ inputs.ssh_key }}' > ~/.ssh/id_rsa
         echo $'${{ inputs.ssh_known_hosts }}' > ~/.ssh/known_hosts
+        echo $'${{ inputs.git_credentials }}' > ~/.git-credentials
       shell: bash
 
     - run: |
@@ -44,7 +52,7 @@ runs:
     - run: |
         IFS=',' read -ra WORKFLOWS <<< "${{ inputs.workflows }}"
         for workflow in "${WORKFLOWS[@]}"; do
-          docker run -v ~/.ssh:/root/.ssh -v ~/.gitconfig:/root/.gitconfig -v "$(pwd)":/usr/src/app -e COPYBARA_CONFIG=${{ inputs.path }} -e COPYBARA_WORKFLOW=$workflow -i sharelatex/copybara copybara || true
+          docker run -v ~/.ssh:/root/.ssh -v ~/.gitconfig:/root/.gitconfig -v "$(pwd)":/usr/src/app -e COPYBARA_CONFIG=${{ inputs.path }} -e COPYBARA_SOURCEREF=${{ inputs.pull_request }} -e COPYBARA_WORKFLOW=$workflow -i sharelatex/copybara copybara || true
         done
       shell: bash
 
