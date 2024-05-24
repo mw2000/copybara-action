@@ -52,7 +52,15 @@ runs:
     - run: |
         IFS=',' read -ra WORKFLOWS <<< "${{ inputs.workflows }}"
         for workflow in "${WORKFLOWS[@]}"; do
-          docker run -v ~/.ssh:/root/.ssh -v ~/.gitconfig:/root/.gitconfig -v "$(pwd)":/usr/src/app -e COPYBARA_CONFIG=${{ inputs.path }} -e COPYBARA_SOURCEREF=${{ inputs.pull_request }} -e COPYBARA_WORKFLOW=$workflow --git-credential-helper-store-file ~/.git-credentials -i sharelatex/copybara copybara || true
+          docker run \
+            -v ~/.ssh:/root/.ssh \
+            -v ~/.git-credentials:/root/.git-credentials \
+            -v ~/.gitconfig:/root/.gitconfig \
+            -v "$(pwd)":/usr/src/app \
+            -e COPYBARA_CONFIG=${{ inputs.path }} \
+            -e COPYBARA_SOURCEREF=${{ inputs.pull_request }} \
+            -e COPYBARA_WORKFLOW=$workflow \
+            -i sharelatex/copybara copybara || true
         done
       shell: bash
 
